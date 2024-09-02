@@ -1,0 +1,3 @@
+name-template: csv2xlsx-rs $RESOLVED_VERSION
+tag-template: py-$RESOLVED_VERSION
+tag-prefix: py-

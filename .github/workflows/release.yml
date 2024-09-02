@@ -51,7 +51,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-linux-${{ matrix.platform.target }}
+          name: csv2xlsx-rs-linux-${{ matrix.platform.target }}
           path: dist
 
   musllinux:
@@ -82,7 +82,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-musllinux-${{ matrix.platform.target }}
+          name: csv2xlsx-rs-musllinux-${{ matrix.platform.target }}
           path: dist
 
   # windows:
@@ -109,7 +109,7 @@ jobs:
   #     - name: Upload wheels
   #       uses: actions/upload-artifact@v4
   #       with:
-  #         name: wheels-windows-${{ matrix.platform.target }}
+  #         name: csv2xlsx-rs-windows-${{ matrix.platform.target }}
   #         path: dist
 
   macos:
@@ -135,7 +135,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-macos-${{ matrix.platform.target }}
+          name: csv2xlsx-rs-macos-${{ matrix.platform.target }}
           path: dist
 
   sdist:
@@ -150,7 +150,7 @@ jobs:
       - name: Upload sdist
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-sdist
+          name: csv2xlsx-rs-sdist
           path: dist
 
   release:
@@ -175,12 +175,10 @@ jobs:
         id: github-release
         uses: release-drafter/release-drafter@v6
         with:
-          config-name: release-drafter-python.yml
+          config-name: release-draft.yml
           name: csv2xlsx-rs ${{ steps.version.outputs.version }}
           tag: py-${{ steps.version.outputs.version }}
           version: ${{ steps.version.outputs.version }}
-          prerelease: ${{ steps.version.outputs.is_prerelease }}
-          commitish: ${{ github.sha }}
           disable-autolabeler: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
