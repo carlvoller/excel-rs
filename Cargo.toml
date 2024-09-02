@@ -1,0 +1,19 @@
+[package]
+name = "csv2xlsx-rs"
+version = "0.1.0"
+edition = "2021"
+
+[profile.release]
+opt-level = 3
+# lto = "fat"
+debug = true
+
+[dependencies]
+csv = "1"
+pyo3 = { version = "0.21", features = ["extension-module"] }
+anyhow = "1.0.86"
+rust_xlsxwriter = "0.74.0"
+
+[lib]
+name = "csv2xlsx_rs"
+crate-type = ["cdylib"]

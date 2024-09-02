@@ -1,0 +1,6 @@
+/target
+.env
+
+*.csv
+*.xlsx
+.DS_STORE
