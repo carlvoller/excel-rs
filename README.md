@@ -7,9 +7,8 @@ This library was created with the goal of being simple, lightweight, and *extrem
 ## Python
 
 ### Installing
-I've not uploaded this project to `pip` yet, so to install please go to Github Releases, *Copy Link Address* for the `.tar.gz` file, then simply run:
 ```
-$ pip install <link you copied>
+$ pip install py-excel-rs 
 ```
 
 ### Convert a pandas DataFrame to Excel:
