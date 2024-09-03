@@ -158,10 +158,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [linux, musllinux, macos, sdist]
     permissions:
-      # write permission is required to create a github release
       contents: write
-      # write permission is required for autolabeler
-      # otherwise, read permission is required at least
+      id-token: write
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
@@ -194,10 +192,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.github-release.outputs.tag_name }}
-          FILES: dist/py_excel_rs-*.tar.gz
+          FILES: dist/py-excel-rs-*.tar.gz
 
       - name: Publish GitHub release
         run: gh release edit $TAG --draft=false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.github-release.outputs.tag_name }}
+      - name: Publish to PyPI
+        uses: PyO3/maturin-action@v1
+        with:
+          command: upload
+          args: --non-interactive --skip-existing py-excel-rs-*/*
