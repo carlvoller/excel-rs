@@ -74,13 +74,13 @@ python3 test-pandas-xlsxwriter.py  76.86s user 1.95s system 95% cpu 1:22.29 tota
 
 #### xlsxwriter (42.543s)
 ```
-time python test-xlsxwriter.py
+$ time python test-xlsxwriter.py
 python3 test-xlsxwriter.py  41.58s user 0.81s system 99% cpu 42.543 total
 ```
 
 #### pyexcelerate (35.821s)
 ```
-time python test-pyexcelerate.py
+$ time python test-pyexcelerate.py
 python3 test-pyexcelerate.py  35.27s user 0.33s system 99% cpu 35.821 total
 ```
 
