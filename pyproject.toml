@@ -3,8 +3,8 @@ requires = ["maturin>=1,<2"]
 build-backend = "maturin"
 
 [project]
-name = "py-csv2xslx-rs"
-version = "0.0.1"
+name = "py-excel-rs"
+version = "0.2.0"
 description = "Some performant utility functions to convert common data structures to XLSX"
 dependencies = ["pandas", "numpy"]
 requires-python = ">=3.7"
@@ -21,4 +21,4 @@ classifiers = [
 
 [tool.maturin]
 python-source = "python"
-module-name = "py_csv2xlsx_rs._csv2xlsx_rs"
+module-name = "py_excel_rs._excel_rs"

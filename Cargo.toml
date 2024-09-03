@@ -1,19 +1,23 @@
 [package]
-name = "csv2xlsx-rs"
-version = "0.1.0"
+name = "excel-rs"
+version = "0.2.0"
 edition = "2021"
 
 [profile.release]
 opt-level = 3
-# lto = "fat"
+lto = "fat"
 debug = true
+overflow-checks = false
+debug-assertions = false
 
 [dependencies]
+lexical = "^6.0"
 csv = "1"
 pyo3 = { version = "0.21", features = ["extension-module"] }
 anyhow = "1.0.86"
-rust_xlsxwriter = "0.74.0"
+zip = { version = "2.2.0", default-features = false, features = ["deflate-zlib-ng"] }
+quick-xml = "0.36.1"
 
 [lib]
-name = "csv2xlsx_rs"
+name = "excel_rs"
 crate-type = ["cdylib"]

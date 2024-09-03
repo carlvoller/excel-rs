@@ -51,7 +51,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: csv2xlsx-rs-linux-${{ matrix.platform.target }}
+          name: py-excel-rs-linux-${{ matrix.platform.target }}
           path: dist/*.whl
 
   musllinux:
@@ -82,7 +82,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: csv2xlsx-rs-musllinux-${{ matrix.platform.target }}
+          name: py-excel-rs-musllinux-${{ matrix.platform.target }}
           path: dist/*.whl
 
   # windows:
@@ -109,7 +109,7 @@ jobs:
   #     - name: Upload wheels
   #       uses: actions/upload-artifact@v4
   #       with:
-  #         name: csv2xlsx-rs-windows-${{ matrix.platform.target }}
+  #         name: py-excel-rs-windows-${{ matrix.platform.target }}
   #         path: dist
 
   macos:
@@ -135,7 +135,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: csv2xlsx-rs-macos-${{ matrix.platform.target }}
+          name: py-excel-rs-macos-${{ matrix.platform.target }}
           path: dist/*.whl
 
   sdist:
@@ -150,7 +150,7 @@ jobs:
       - name: Upload sdist
         uses: actions/upload-artifact@v4
         with:
-          name: csv2xlsx-rs-sdist
+          name: py-excel-rs-sdist
           path: dist/*.tar.gz
 
   release:
@@ -182,7 +182,7 @@ jobs:
         uses: release-drafter/release-drafter@v6
         with:
           config-name: release-draft.yml
-          name: csv2xlsx-rs ${{ steps.version.outputs.version }}
+          name: py-excel-rs ${{ steps.version.outputs.version }}
           tag: py-${{ steps.version.outputs.version }}
           version: ${{ steps.version.outputs.version }}
           disable-autolabeler: true
@@ -194,7 +194,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.github-release.outputs.tag_name }}
-          FILES: dist/py_csv2xslx_rs-*.tar.gz
+          FILES: dist/py_excel_rs-*.tar.gz
 
       - name: Publish GitHub release
         run: gh release edit $TAG --draft=false
