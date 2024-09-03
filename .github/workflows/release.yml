@@ -51,7 +51,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: py-excel-rs-linux-${{ matrix.platform.target }}
+          name: whl-py-excel-rs-linux-${{ matrix.platform.target }}
           path: dist/*.whl
 
   musllinux:
@@ -82,7 +82,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: py-excel-rs-musllinux-${{ matrix.platform.target }}
+          name: whl-py-excel-rs-musllinux-${{ matrix.platform.target }}
           path: dist/*.whl
 
   # windows:
@@ -135,7 +135,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: py-excel-rs-macos-${{ matrix.platform.target }}
+          name: whl-py-excel-rs-macos-${{ matrix.platform.target }}
           path: dist/*.whl
 
   sdist:
@@ -151,7 +151,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: py-excel-rs-sdist
-          path: dist/*.tar.gz
+          path: dist/py_excel_rs-*.tar.gz
 
   release:
     name: Release
@@ -192,7 +192,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.github-release.outputs.tag_name }}
-          FILES: dist/py-excel-rs-*.tar.gz
+          FILES: dist/py-excel-rs-sdist/*.tar.gz
 
       - name: Publish GitHub release
         run: gh release edit $TAG --draft=false
@@ -203,4 +203,4 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           command: upload
-          args: --non-interactive --skip-existing py-excel-rs-*/*
+          args: --non-interactive --skip-existing whl-py-excel-rs-*/*
