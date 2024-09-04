@@ -1,7 +1,8 @@
 mod export_to_xlsx;
 mod xlsx;
 
-use export_to_xlsx::export_to_custom_xlsx;
+use export_to_xlsx::{export_to_custom_xlsx, export_ndarray_to_custom_xlsx};
+use numpy::PyReadonlyArray2;
 use pyo3::{prelude::*, types::PyBytes};
 
 #[pymodule]
@@ -14,6 +15,38 @@ fn _excel_rs<'py>(m: &Bound<'py, PyModule>) -> PyResult<()> {
             Ok(b) => b,
             Err(e) => panic!("{e}"),
         };
+        PyBytes::new_bound(py, &xlsx_bytes)
+    }
+
+    #[pyfn(m)]
+    #[pyo3(name = "py_2d_to_xlsx")]
+    fn py_2d_to_xlsx<'py>(
+        py: Python<'py>,
+        list: PyReadonlyArray2<'py, PyObject>,
+    ) -> Bound<'py, PyBytes> {
+        let ndarray = list.as_array();
+
+        let ndarray_str = ndarray.mapv(|x| {
+            if let Ok(inner_str) = x.extract::<String>(py) {
+                inner_str
+            } else {
+                if let Ok(inner_num) = x.extract::<f64>(py) {
+                    if inner_num.is_nan() {
+                        String::from("")
+                    } else {
+                        inner_num.to_string()
+                    }
+                } else {
+                    String::from("")
+                }
+            }
+        });
+
+        let xlsx_bytes = match export_ndarray_to_custom_xlsx(ndarray_str) {
+            Ok(b) => b,
+            Err(e) => panic!("{e}"),
+        };
+
         PyBytes::new_bound(py, &xlsx_bytes)
     }
 

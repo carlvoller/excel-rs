@@ -6,3 +6,4 @@
 .DS_STORE
 __pycache__
 profile.json
+*.so

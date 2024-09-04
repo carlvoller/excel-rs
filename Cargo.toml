@@ -1,6 +1,6 @@
 [package]
 name = "excel-rs"
-version = "0.2.1"
+version = "0.3.0"
 edition = "2021"
 
 [profile.release]
@@ -15,6 +15,7 @@ csv = "1"
 pyo3 = { version = "0.21", features = ["extension-module"] }
 anyhow = "1.0.86"
 zip = { version = "2.2.0", default-features = false, features = ["deflate-zlib-ng"] }
+numpy = "0.21"
 
 [lib]
 name = "excel_rs"

@@ -2,8 +2,6 @@ use std::io::{Result, Seek, Write};
 
 use zip::{write::SimpleFileOptions, ZipWriter};
 
-use super::sheet::Sheet;
-
 pub struct XlsxFormatter<W: Write + Seek> {
     pub zip_writer: ZipWriter<W>,
 }
@@ -13,20 +11,20 @@ impl<W: Write + Seek> XlsxFormatter<W> {
         XlsxFormatter { zip_writer }
     }
 
-    pub fn write_sheet(&mut self, sheet: Sheet) -> Result<()> {
-        let sheet_id = sheet.id;
-        let sheet_buf = sheet.close().ok().unwrap();
+    // pub fn write_sheet(&mut self, sheet: Sheet) -> Result<()> {
+    //     let sheet_id = sheet.id;
+    //     let sheet_buf = sheet.close().ok().unwrap();
 
-        let options = SimpleFileOptions::default()
-            .compression_method(zip::CompressionMethod::Deflated)
-            .compression_level(Some(1));
-        self.zip_writer
-            .start_file(format!("xl/worksheets/sheet{}.xml", sheet_id), options)?;
+    //     let options = SimpleFileOptions::default()
+    //         .compression_method(zip::CompressionMethod::Deflated)
+    //         .compression_level(Some(1));
+    //     self.zip_writer
+    //         .start_file(format!("xl/worksheets/sheet{}.xml", sheet_id), options)?;
 
-        self.zip_writer.write_all(&sheet_buf)?;
+    //     self.zip_writer.write_all(&sheet_buf)?;
 
-        Ok(())
-    }
+    //     Ok(())
+    // }
 
     pub fn finish(mut self, num_of_sheets: u16) -> Result<W> {
         let options = SimpleFileOptions::default();

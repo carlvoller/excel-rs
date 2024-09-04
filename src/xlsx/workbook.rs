@@ -20,18 +20,11 @@ impl<W: Write + Seek> WorkBook<W> {
         }
     }
 
-    pub fn get_worksheet(&mut self, name: String) -> Sheet {
+    pub fn get_worksheet(&mut self, name: String) -> Sheet<W> {
         self.num_of_sheets += 1;
-        Sheet::new(name, self.num_of_sheets)
+        Sheet::new(name, self.num_of_sheets, &mut self.formatter.zip_writer)
     }
-
-    pub fn write_worksheet(&mut self, sheet: Sheet) -> Result<()> {
-
-        self.formatter.write_sheet(sheet)?;
-
-        Ok(())
-    }
-
+    
     pub fn finish(self) -> Result<W> {
         let result = self.formatter.finish(self.num_of_sheets)?;
         Ok(result)
