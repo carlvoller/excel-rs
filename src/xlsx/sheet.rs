@@ -27,7 +27,8 @@ impl Sheet {
     pub fn write_row(&mut self, row_num: u32, data: Vec<&[u8]>) -> Result<()> {
         // let mut sheet_buf = self.sheet_buf;
 
-        let mut escaped_vec = [0; 200];
+        // TODO: Add rolling window to account for bytes.len() > 400
+        let mut escaped_vec = [0; 400];
 
         // TODO: Proper Error Handling
         if !self.is_closed {
@@ -59,7 +60,7 @@ impl Sheet {
         Ok(())
     }
 
-    fn escape(&self, bytes: &[u8], mut escaped: [u8; 200]) -> ([u8; 200], usize) {
+    fn escape(&self, bytes: &[u8], mut escaped: [u8; 400]) -> ([u8; 400], usize) {
         let mut i = 0;
         for c in bytes {
             if matches!(c, b'<' | b'>' | b'&' | b'\'' | b'\"') {
