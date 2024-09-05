@@ -1,9 +1,10 @@
 mod export_to_xlsx;
 mod xlsx;
 
-use export_to_xlsx::{export_to_custom_xlsx, export_ndarray_to_custom_xlsx};
+use export_to_xlsx::{export_ndarray_to_custom_xlsx, export_pg_client_to_custom_xlsx, export_to_custom_xlsx};
 use numpy::PyReadonlyArray2;
-use pyo3::{prelude::*, types::PyBytes};
+use postgres::{Client, NoTls};
+use pyo3::{prelude::*, types::{PyBytes, PyString}};
 
 #[pymodule]
 fn _excel_rs<'py>(m: &Bound<'py, PyModule>) -> PyResult<()> {
@@ -43,6 +44,37 @@ fn _excel_rs<'py>(m: &Bound<'py, PyModule>) -> PyResult<()> {
         });
 
         let xlsx_bytes = match export_ndarray_to_custom_xlsx(ndarray_str) {
+            Ok(b) => b,
+            Err(e) => panic!("{e}"),
+        };
+
+        PyBytes::new_bound(py, &xlsx_bytes)
+    }
+
+    #[pyfn(m)]
+    #[pyo3(name = "pg_query_to_xlsx")]
+    fn pg_query_to_xlsx<'py>(
+        py: Python<'py>,
+        py_query: Bound<'py, PyString>,
+        py_conn_string: Bound<'py, PyString>,
+    ) -> Bound<'py, PyBytes> {
+
+        let conn_string: String = match py_conn_string.extract() {
+            Ok(s) => s,
+            Err(e) => panic!("{e}")
+        };
+
+        let query: String = match py_query.extract() {
+            Ok(s) => s,
+            Err(e) => panic!("{e}")
+        };
+
+        let client = match Client::connect(&conn_string, NoTls) {
+            Ok(c) => c,
+            Err(e) => panic!("{e}")
+        };
+
+        let xlsx_bytes = match export_pg_client_to_custom_xlsx(&query, client) {
             Ok(b) => b,
             Err(e) => panic!("{e}"),
         };

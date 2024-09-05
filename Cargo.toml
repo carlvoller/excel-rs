@@ -16,6 +16,7 @@ pyo3 = { version = "0.21", features = ["extension-module"] }
 anyhow = "1.0.86"
 zip = { version = "2.2.0", default-features = false, features = ["deflate-zlib-ng"] }
 numpy = "0.21"
+postgres = "0.19.8"
 
 [lib]
 name = "excel_rs"

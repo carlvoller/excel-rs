@@ -4,6 +4,7 @@ use super::xlsx::WorkBook as NewWorkBook;
 
 use anyhow::Result;
 use numpy::ndarray::Array2;
+use postgres::{fallible_iterator::FallibleIterator, Client};
 
 pub fn export_to_custom_xlsx(x: &[u8]) -> Result<Vec<u8>> {
     let output_buffer = vec![];
@@ -40,6 +41,37 @@ pub fn export_ndarray_to_custom_xlsx(x: Array2<String>) -> Result<Vec<u8>> {
         row_num += 1;
     }
 
+    worksheet.close()?;
+
+    let final_buffer = workbook.finish()?;
+
+    Ok(final_buffer.into_inner())
+}
+
+
+pub fn export_pg_client_to_custom_xlsx(query: &str, mut client: Client) -> Result<Vec<u8>> {
+
+    let params: Vec<String> = vec![];
+    let mut iter = client.query_raw(query, params)?;
+
+    let output_buffer = vec![];
+    let mut workbook = NewWorkBook::new(Cursor::new(output_buffer));
+    let mut worksheet = workbook.get_worksheet(String::from("Sheet 1"));
+
+    let mut row_num = 1;
+
+    while let Some(row) = iter.next()? {
+        let len = row.len();
+        row_num += 1;
+        let mut row_vec: Vec<&[u8]> = vec![&[]; len];
+
+        for col in 0..len {
+            let bytes: &[u8] = row.get(col);
+            row_vec[col] = bytes;
+        }
+        
+        worksheet.write_row(row_num, row_vec)?;
+    }
     worksheet.close()?;
 
     let final_buffer = workbook.finish()?;
