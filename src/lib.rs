@@ -69,12 +69,12 @@ fn _excel_rs<'py>(m: &Bound<'py, PyModule>) -> PyResult<()> {
             Err(e) => panic!("{e}")
         };
 
-        let client = match Client::connect(&conn_string, NoTls) {
+        let mut client = match Client::connect(&conn_string, NoTls) {
             Ok(c) => c,
             Err(e) => panic!("{e}")
         };
 
-        let xlsx_bytes = match export_pg_client_to_custom_xlsx(&query, client) {
+        let xlsx_bytes = match export_pg_client_to_custom_xlsx(&query, &mut client) {
             Ok(b) => b,
             Err(e) => panic!("{e}"),
         };

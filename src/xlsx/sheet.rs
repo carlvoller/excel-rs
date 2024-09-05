@@ -12,7 +12,6 @@ pub struct Sheet<'a, W: Write + Seek> {
 
 impl<'a, W: Write + Seek> Sheet<'a, W> {
     pub fn new(name: String, id: u16, writer: &'a mut ZipWriter<W>) -> Self {
-
         let options = SimpleFileOptions::default()
             .compression_method(zip::CompressionMethod::Deflated)
             .compression_level(Some(1))
@@ -34,38 +33,33 @@ impl<'a, W: Write + Seek> Sheet<'a, W> {
     }
 
     pub fn write_row(&mut self, row_num: u32, data: Vec<&[u8]>) -> Result<()> {
-
         let mut escaped_vec = [0; 512];
         let mut final_vec = Vec::with_capacity(512 * data.len());
 
         // TODO: Proper Error Handling
-        if !self.is_closed {
-            let (row_in_chars_arr, digits) = self.num_to_bytes(row_num);
+        let (row_in_chars_arr, digits) = self.num_to_bytes(row_num);
 
-            final_vec.write(b"<row r=\"")?;
-            final_vec.write(&row_in_chars_arr[9 - digits..])?;
-            final_vec.write(b"\">")?;
+        final_vec.write(b"<row r=\"")?;
+        final_vec.write(&row_in_chars_arr[9 - digits..])?;
+        final_vec.write(b"\">")?;
 
-            let mut col = 0;
-            for datum in data {
-                let (ref_id, pos) = self.ref_id(col, row_num)?;
+        let mut col = 0;
+        for datum in data {
+            let (ref_id, pos) = self.ref_id(col, (row_in_chars_arr, digits))?;
 
-                let length;
-                (escaped_vec, length) = self.escape(datum, escaped_vec);
+            let length;
+            (escaped_vec, length) = self.escape(datum, escaped_vec);
 
-                final_vec.write(b"<c r=\"")?;
-                final_vec.write(&ref_id.as_slice()[0..pos])?;
-                final_vec.write(b"\" t=\"str\"><v>")?;
-                final_vec.write(&escaped_vec[..length])?;
-                final_vec.write(b"</v></c>")?;
+            final_vec.write(b"<c r=\"")?;
+            final_vec.write(&ref_id.as_slice()[0..pos])?;
+            final_vec.write(b"\" t=\"str\"><v>")?;
+            final_vec.write(&escaped_vec[..length])?;
+            final_vec.write(b"</v></c>")?;
 
-                escaped_vec.fill(0);
-
-                col += 1;
-            }
-
-            final_vec.write(b"</row>")?;
+            col += 1;
         }
+
+        final_vec.write(b"</row>")?;
 
         self.sheet_buf.write(&final_vec)?;
 
@@ -74,9 +68,10 @@ impl<'a, W: Write + Seek> Sheet<'a, W> {
 
     fn escape(&self, bytes: &[u8], mut escaped: [u8; 512]) -> ([u8; 512], usize) {
         let mut i = 0;
-        for c in bytes {
+        let len = bytes.len();
+        for x in 0..len {
+            let c = bytes[x];
             if matches!(c, b'<' | b'>' | b'&' | b'\'' | b'\"') {
-
                 let mut delta = 2;
 
                 escaped[i] = b'&';
@@ -92,11 +87,11 @@ impl<'a, W: Write + Seek> Sheet<'a, W> {
                     b'&' => {
                         delta += 1;
                         &escaped[i..i + 3].copy_from_slice(b"amp")
-                    },
+                    }
                     b'"' => {
                         delta += 2;
                         &escaped[i..i + 4].copy_from_slice(b"quot")
-                    },
+                    }
                     b'\t' => &escaped[i..i + 2].copy_from_slice(b"#9"),
                     b'\n' => {
                         delta += 1;
@@ -123,7 +118,7 @@ impl<'a, W: Write + Seek> Sheet<'a, W> {
                 // if i == 512 {
                 //     println!("{:?}", escaped);
                 // }
-                escaped[i] = *c;
+                escaped[i] = c;
                 i += 1;
             }
         }
@@ -152,7 +147,7 @@ impl<'a, W: Write + Seek> Sheet<'a, W> {
         (row_in_chars_arr, digits)
     }
 
-    fn ref_id(&self, col: u32, row: u32) -> Result<([u8; 12], usize)> {
+    fn ref_id(&self, col: u32, row: ([u8; 9], usize)) -> Result<([u8; 12], usize)> {
         let mut final_arr: [u8; 12] = [0; 12];
         let letter = self.col_to_letter(col);
 
@@ -164,7 +159,7 @@ impl<'a, W: Write + Seek> Sheet<'a, W> {
             }
         }
 
-        let (row_in_chars_arr, digits) = self.num_to_bytes(row);
+        let (row_in_chars_arr, digits) = row;
 
         for i in 0..digits {
             final_arr[pos] = row_in_chars_arr[(8 - digits) + i + 1];

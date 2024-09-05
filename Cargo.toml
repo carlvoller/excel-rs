@@ -14,9 +14,13 @@ debug-assertions = false
 csv = "1"
 pyo3 = { version = "0.21", features = ["extension-module"] }
 anyhow = "1.0.86"
-zip = { version = "2.2.0", default-features = false, features = ["deflate-zlib-ng"] }
+zip = { version = "2.2.0", default-features = false, features = ["deflate-flate2", "deflate-zlib-ng"] }
 numpy = "0.21"
 postgres = "0.19.8"
+chrono = "0.4.38"
+postgres-protocol = "0.6.7"
+rust_decimal = { version = "1.36.0", features = ["db-postgres"] }
+postgres_money = { version = "0.4.0", features = ["sql"] }
 
 [lib]
 name = "excel_rs"
