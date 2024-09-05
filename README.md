@@ -36,6 +36,18 @@ with open('report.xlsx', 'wb') as f:
     f.write(xlsx)
 ```
 
+### Convert Postgres response to Excel:
+```python
+import py_excel_rs
+
+conn_string = "dbname=* user=* password=* host=*"
+query = "SELECT * FROM table_name"
+xlsx = py_excel_rs.pg_to_xlsx(query, conn_string)
+
+with open('report.xlsx', 'wb') as f:
+    f.write(xlsx)
+```
+
 ## Rust
 TODO: Add rust documentation
 
