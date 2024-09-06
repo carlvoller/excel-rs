@@ -42,7 +42,7 @@ import py_excel_rs
 
 conn_string = "dbname=* user=* password=* host=*"
 query = "SELECT * FROM table_name"
-xlsx = py_excel_rs.pg_to_xlsx(query, conn_string)
+xlsx = py_excel_rs.pg_to_xlsx(query, conn_string, disable_strict_ssl=False)
 
 with open('report.xlsx', 'wb') as f:
     f.write(xlsx)

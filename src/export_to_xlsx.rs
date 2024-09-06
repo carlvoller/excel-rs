@@ -162,10 +162,20 @@ pub fn export_pg_client_to_custom_xlsx<'a>(query: &str, client: &'a mut Client) 
     let mut workbook = NewWorkBook::new(Cursor::new(output_buffer));
     let mut worksheet = workbook.get_worksheet(String::from("Sheet 1"));
 
-    let mut row_num = 0;
+    let mut row_num = 1;
+    let headers = iter.next().ok().unwrap().unwrap();
+    let len = headers.len();
+
+    // TODO: Add if len == 0 check
+
+    for col in 0..len {
+        let column = headers.columns().get(col).unwrap();
+        let mut row_vec: Vec<&[u8]> = vec![&[]; len];
+        row_vec[col] = column.name().as_bytes();
+        worksheet.write_row(0, row_vec)?;
+    }
 
     while let Some(row) = iter.next()? {
-        let len = row.len();
         row_num += 1;
         let mut row_vec: Vec<Box<[u8]>> = vec![Box::from([]); len];
 
