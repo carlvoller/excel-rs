@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "py-excel-rs"
-version = "0.4.0"
+version = "0.4.1"
 description = "Some performant utility functions to convert common data structures to XLSX"
 dependencies = ["pandas", "numpy"]
 requires-python = ">=3.7"

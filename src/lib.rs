@@ -1,10 +1,17 @@
 mod export_to_xlsx;
 mod xlsx;
 
-use export_to_xlsx::{export_ndarray_to_custom_xlsx, export_pg_client_to_custom_xlsx, export_to_custom_xlsx};
+use export_to_xlsx::{
+    export_ndarray_to_custom_xlsx, export_pg_client_to_custom_xlsx, export_to_custom_xlsx,
+};
+use native_tls::TlsConnector;
 use numpy::PyReadonlyArray2;
-use postgres::{Client, NoTls};
-use pyo3::{prelude::*, types::{PyBytes, PyString}};
+use postgres::Client;
+use postgres_native_tls::MakeTlsConnector;
+use pyo3::{
+    prelude::*,
+    types::{PyBool, PyBytes, PyString},
+};
 
 #[pymodule]
 fn _excel_rs<'py>(m: &Bound<'py, PyModule>) -> PyResult<()> {
@@ -57,21 +64,36 @@ fn _excel_rs<'py>(m: &Bound<'py, PyModule>) -> PyResult<()> {
         py: Python<'py>,
         py_query: Bound<'py, PyString>,
         py_conn_string: Bound<'py, PyString>,
+        disable_strict_ssl: Bound<'py, PyBool>,
     ) -> Bound<'py, PyBytes> {
-
         let conn_string: String = match py_conn_string.extract() {
             Ok(s) => s,
-            Err(e) => panic!("{e}")
+            Err(e) => panic!("{e}"),
         };
 
         let query: String = match py_query.extract() {
             Ok(s) => s,
-            Err(e) => panic!("{e}")
+            Err(e) => panic!("{e}"),
         };
 
-        let mut client = match Client::connect(&conn_string, NoTls) {
+        let connector: TlsConnector;
+
+        if disable_strict_ssl.is_true() {
+            connector = TlsConnector::builder()
+                .danger_accept_invalid_certs(true)
+                .danger_accept_invalid_hostnames(true)
+                .build()
+                .ok()
+                .unwrap();
+        } else {
+            connector = TlsConnector::new().ok().unwrap();
+        }
+
+        let connector = MakeTlsConnector::new(connector);
+
+        let mut client = match Client::connect(&conn_string, connector) {
             Ok(c) => c,
-            Err(e) => panic!("{e}")
+            Err(e) => panic!("{e}"),
         };
 
         let xlsx_bytes = match export_pg_client_to_custom_xlsx(&query, &mut client) {
