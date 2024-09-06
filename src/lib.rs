@@ -78,6 +78,7 @@ fn _excel_rs<'py>(m: &Bound<'py, PyModule>) -> PyResult<()> {
         };
 
         let mut config = rustls::ClientConfig::builder()
+            .with_safe_defaults()
             .with_root_certificates(rustls::RootCertStore::empty())
             .with_no_client_auth();
 

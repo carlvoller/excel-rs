@@ -62,26 +62,31 @@ impl<'a> FromSql<'a> for ExcelBytes {
                 }
                 Err(_) => ExcelBytes(Box::from([])),
             },
-            Type::INT2 => ExcelBytes(match types::int2_from_sql(raw) {
-                Ok(parsed) => Box::from(parsed.to_string().as_bytes()),
-                Err(_) => Box::from([]),
-            }),
-            Type::INT4 => ExcelBytes(match types::int4_from_sql(raw) {
-                Ok(parsed) => Box::from(parsed.to_string().as_bytes()),
-                Err(_) => Box::from([]),
-            }),
-            Type::INT8 => ExcelBytes(match types::int8_from_sql(raw) {
-                Ok(parsed) => Box::from(parsed.to_string().as_bytes()),
-                Err(_) => Box::from([]),
-            }),
-            Type::FLOAT4 => ExcelBytes(match types::float4_from_sql(raw) {
-                Ok(parsed) => Box::from(parsed.to_string().as_bytes()),
-                Err(_) => Box::from([]),
-            }),
-            Type::FLOAT8 => ExcelBytes(match types::float8_from_sql(raw) {
-                Ok(parsed) => Box::from(parsed.to_string().as_bytes()),
-                Err(_) => Box::from([]),
-            }),
+            Type::INT2 => ExcelBytes(Box::from(
+                i16::from_be_bytes(raw.try_into().ok().unwrap())
+                    .to_string()
+                    .as_bytes(),
+            )),
+            Type::INT4 => ExcelBytes(Box::from(
+                i32::from_be_bytes(raw.try_into().ok().unwrap())
+                    .to_string()
+                    .as_bytes(),
+            )),
+            Type::INT8 => ExcelBytes(Box::from(
+                i64::from_be_bytes(raw.try_into().ok().unwrap())
+                    .to_string()
+                    .as_bytes(),
+            )),
+            Type::FLOAT4 => ExcelBytes(Box::from(
+                f32::from_be_bytes(raw.try_into().ok().unwrap())
+                    .to_string()
+                    .as_bytes(),
+            )),
+            Type::FLOAT8 => ExcelBytes(Box::from(
+                f64::from_be_bytes(raw.try_into().ok().unwrap())
+                    .to_string()
+                    .as_bytes(),
+            )),
             Type::NUMERIC => ExcelBytes(match <Decimal as FromSql>::from_sql(pg_type, raw) {
                 Ok(num) => Box::from(num.to_string().as_bytes()),
                 Err(_) => Box::from([]),
@@ -101,6 +106,8 @@ impl<'a> FromSql<'a> for ExcelBytes {
             | Type::MONEY
             | Type::NUMERIC
             | Type::INT8
+            | Type::INT4
+            | Type::INT2
             | Type::FLOAT4
             | Type::FLOAT8 => true,
             ref ty if ty.name() == "citext" => true,
@@ -168,12 +175,16 @@ pub fn export_pg_client_to_custom_xlsx<'a>(query: &str, client: &'a mut Client) 
 
     // TODO: Add if len == 0 check
 
+    // Write headers
+    let mut row_vec: Vec<&[u8]> = vec![&[]; len];
+
     for col in 0..len {
         let column = headers.columns().get(col).unwrap();
-        let mut row_vec: Vec<&[u8]> = vec![&[]; len];
         row_vec[col] = column.name().as_bytes();
-        worksheet.write_row(0, row_vec)?;
     }
+
+    worksheet.write_row(1, row_vec)?;
+
 
     while let Some(row) = iter.next()? {
         row_num += 1;
