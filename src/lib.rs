@@ -1,17 +1,18 @@
 mod export_to_xlsx;
+mod ssl;
 mod xlsx;
 
 use export_to_xlsx::{
     export_ndarray_to_custom_xlsx, export_pg_client_to_custom_xlsx, export_to_custom_xlsx,
 };
-use native_tls::TlsConnector;
 use numpy::PyReadonlyArray2;
 use postgres::Client;
-use postgres_native_tls::MakeTlsConnector;
 use pyo3::{
     prelude::*,
     types::{PyBool, PyBytes, PyString},
 };
+use ssl::SkipServerVerification;
+use tokio_postgres_rustls::MakeRustlsConnect;
 
 #[pymodule]
 fn _excel_rs<'py>(m: &Bound<'py, PyModule>) -> PyResult<()> {
@@ -76,22 +77,19 @@ fn _excel_rs<'py>(m: &Bound<'py, PyModule>) -> PyResult<()> {
             Err(e) => panic!("{e}"),
         };
 
-        let connector: TlsConnector;
+        let mut config = rustls::ClientConfig::builder()
+            .with_root_certificates(rustls::RootCertStore::empty())
+            .with_no_client_auth();
 
         if disable_strict_ssl.is_true() {
-            connector = TlsConnector::builder()
-                .danger_accept_invalid_certs(true)
-                .danger_accept_invalid_hostnames(true)
-                .build()
-                .ok()
-                .unwrap();
-        } else {
-            connector = TlsConnector::new().ok().unwrap();
+            config
+                .dangerous()
+                .set_certificate_verifier(SkipServerVerification::new())
         }
 
-        let connector = MakeTlsConnector::new(connector);
+        let tls = MakeRustlsConnect::new(config);
 
-        let mut client = match Client::connect(&conn_string, connector) {
+        let mut client = match Client::connect(&conn_string, tls) {
             Ok(c) => c,
             Err(e) => panic!("{e}"),
         };
