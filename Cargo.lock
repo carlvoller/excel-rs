@@ -382,6 +382,7 @@ dependencies = [
  "native-tls",
  "numpy",
  "openssl",
+ "openssl-sys",
  "postgres",
  "postgres-native-tls",
  "postgres-protocol",
