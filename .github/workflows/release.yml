@@ -51,14 +51,11 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: 'true'
           before-script-linux: |
-            if ! command -v pip &> /dev/null
+            if ! command -v yum &> /dev/null
             then
-              if ! command -v yum &> /dev/null
-              then
-                sudo apt-get install python3-pip
-              else
-                python3 -m ensurepip
-              fi
+              sudo apt-get install python3-pip
+            else
+              python3 -m ensurepip
             fi
           manylinux: manylinux_2_28
       - name: Upload wheels
