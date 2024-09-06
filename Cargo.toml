@@ -28,10 +28,10 @@ native-tls = "0.2.12"
 name = "excel_rs"
 crate-type = ["cdylib"]
 
-[dependencies.openssl]
+[build-dependencies.openssl]
 version = "0.10"
 features = ["vendored"]
 
-[dependencies.openssl-sys]
+[build-dependencies.openssl-sys]
 version = "0.9"
 features = ["vendored"]
