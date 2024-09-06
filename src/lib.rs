@@ -11,6 +11,7 @@ use pyo3::{
     prelude::*,
     types::{PyBool, PyBytes, PyString},
 };
+use rustls::ClientConfig;
 use ssl::SkipServerVerification;
 use tokio_postgres_rustls::MakeRustlsConnect;
 
@@ -77,8 +78,7 @@ fn _excel_rs<'py>(m: &Bound<'py, PyModule>) -> PyResult<()> {
             Err(e) => panic!("{e}"),
         };
 
-        let mut config = rustls::ClientConfig::builder()
-            .with_safe_defaults()
+        let mut config = ClientConfig::builder()
             .with_root_certificates(rustls::RootCertStore::empty())
             .with_no_client_auth();
 
