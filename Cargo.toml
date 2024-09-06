@@ -28,3 +28,7 @@ openssl = { version = "0.10", features = ["vendored"] }
 [lib]
 name = "excel_rs"
 crate-type = ["cdylib"]
+
+[dependencies.openssl-sys]
+version = "0.9"
+features = ["vendored"]
