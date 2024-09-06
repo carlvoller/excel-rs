@@ -53,7 +53,7 @@ jobs:
           before-script-linux: |
             if ! command -v yum &> /dev/null
             then
-              sudo apt-get install python3-pip
+              sudo apt-get install python3-pip -y
             else
               python3 -m ensurepip
             fi
