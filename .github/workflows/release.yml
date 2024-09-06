@@ -51,7 +51,7 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: 'true'
           before-script-linux: |
-            yum install python3-pip
+            yum -y install python3-pip
           manylinux: manylinux_2_28
       - name: Upload wheels
         uses: actions/upload-artifact@v4
