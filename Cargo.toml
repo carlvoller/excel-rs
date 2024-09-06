@@ -1,6 +1,6 @@
 [package]
 name = "excel-rs"
-version = "0.4.1"
+version = "0.4.2"
 edition = "2021"
 
 [profile.release]
@@ -22,7 +22,7 @@ postgres-protocol = "0.6.7"
 rust_decimal = { version = "1.36.0", features = ["db-postgres"] }
 postgres_money = { version = "0.4.0", features = ["sql"] }
 tokio-postgres-rustls = "0.12.0"
-rustls = { version = "0.23.12", default-features = false }
+rustls = { version = "0.23.12" }
 
 [lib]
 name = "excel_rs"
