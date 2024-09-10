@@ -1,0 +1,4 @@
+name-template: cli-excel-rs $RESOLVED_VERSION
+tag-template: cli-$RESOLVED_VERSION
+tag-prefix: cli-
+template: Version $RESOLVED_VERSION of cli-excel-rs is now available!

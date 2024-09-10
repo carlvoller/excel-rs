@@ -11,8 +11,7 @@ on:
       - main
       - master
     paths:
-      - Cargo.toml
-      - pyproject.toml
+      - py-excel-rs/pyproject.toml
     tags:
       - '*'
   pull_request:

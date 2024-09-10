@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/*", "py-excel-rs"]
+members = ["cli-excel-rs", "crates/*", "py-excel-rs"]
 resolver = "2"
 
 [workspace.package]
