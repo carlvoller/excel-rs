@@ -11,7 +11,7 @@ on:
       - main
       - master
     paths:
-      - cli-excel-rs
+      - cli-excel-rs/*
     tags:
       - '*'
   pull_request:
