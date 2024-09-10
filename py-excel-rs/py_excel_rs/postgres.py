@@ -74,16 +74,18 @@ class ExcelPostgresBuilder:
             table_name = schema_name
             schema_name = ""
         
-        columns = [f"\"{x}\"" for x in client.get_columns(table_name, schema_name, self._excluded)]
         if self._selected == "*":
-            query = f"SELECT {', '.join(columns)} FROM {self._table_name}"
+            if self._excluded is not None:
+                columns = [f"\"{x}\"" for x in client.get_columns(table_name, schema_name, self._excluded)]
+                query = f"SELECT {', '.join(columns)} FROM {self._table_name}"
+            else:
+                query = f"SELECT * FROM {self._table_name}"
         else:
             parsed =  [f"'{x}'" for x in self._selected]
             query = f"SELECT {', '.join(parsed)} FROM {self._table_name}"
             
         if self._order_by is not None and self._order_by_col is not None:
             query += f" ORDER BY \"{self._order_by_col}\" {self._order_by.value}"
-        
         
         xlsx = client.get_xlsx_from_query(query)
         client.close()
