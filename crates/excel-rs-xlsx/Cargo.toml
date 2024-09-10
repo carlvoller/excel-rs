@@ -1,0 +1,16 @@
+[package]
+name = "excel-rs-xlsx"
+version = { workspace = true }
+edition = { workspace = true }
+authors = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+readme = "../../README.md"
+description = "xlsx processor for excel-rs"
+
+[dependencies]
+zip = { version = "2.2.0", default-features = false, features = [
+    "deflate-flate2",
+    "deflate-zlib-ng",
+] }
+anyhow = "1.0.86"

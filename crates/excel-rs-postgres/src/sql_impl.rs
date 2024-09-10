@@ -1,20 +1,13 @@
 use std::error::Error;
-use std::io::Cursor;
 
-use super::xlsx::WorkBook as NewWorkBook;
-
-use anyhow::Result;
 use chrono::DateTime;
-use numpy::ndarray::Array2;
 use postgres::types::{FromSql, Type};
-use postgres::RowIter;
-use postgres::{fallible_iterator::FallibleIterator, Client};
 use postgres_money::Money;
 use postgres_protocol::types;
 use rust_decimal::Decimal;
 
-struct ExcelBytesBorrowed<'a>(&'a [u8]);
-struct ExcelBytes(Box<[u8]>);
+pub struct ExcelBytesBorrowed<'a>(pub &'a [u8]);
+pub struct ExcelBytes(pub Box<[u8]>);
 
 // Int8, Money, Timestamp, VarChar, Text, Numeric
 impl<'a> FromSql<'a> for ExcelBytesBorrowed<'a> {
@@ -114,98 +107,4 @@ impl<'a> FromSql<'a> for ExcelBytes {
             _ => false,
         }
     }
-}
-
-pub fn export_to_custom_xlsx(x: &[u8]) -> Result<Vec<u8>> {
-    let output_buffer = vec![];
-    let mut workbook = NewWorkBook::new(Cursor::new(output_buffer));
-    let mut worksheet = workbook.get_worksheet(String::from("Sheet 1"));
-
-    let mut reader = csv::ReaderBuilder::new().from_reader(x);
-
-    let headers = reader.byte_headers()?;
-    worksheet.write_row(1, headers.iter().to_owned().collect())?;
-
-    let mut record = csv::ByteRecord::new();
-    let mut row = 2;
-    while reader.read_byte_record(&mut record)? {
-        let row_data = record.iter().to_owned().collect();
-        worksheet.write_row(row, row_data)?;
-        row += 1;
-    }
-
-    worksheet.close()?;
-
-    let final_buffer = workbook.finish()?;
-
-    Ok(final_buffer.into_inner())
-}
-
-pub fn export_ndarray_to_custom_xlsx(x: Array2<String>) -> Result<Vec<u8>> {
-    let output_buffer = vec![];
-    let mut workbook = NewWorkBook::new(Cursor::new(output_buffer));
-    let mut worksheet = workbook.get_worksheet(String::from("Sheet 1"));
-
-    let mut row_num = 1;
-    for row in x.rows() {
-        let bytes = row.map(|x| x.as_bytes()).to_vec();
-        worksheet.write_row(row_num, bytes)?;
-
-        row_num += 1;
-    }
-
-    worksheet.close()?;
-
-    let final_buffer = workbook.finish()?;
-
-    Ok(final_buffer.into_inner())
-}
-
-pub fn export_pg_client_to_custom_xlsx<'a>(query: &str, client: &'a mut Client) -> Result<Vec<u8>> {
-    let params: Vec<String> = vec![];
-    let mut iter: RowIter<'a> = client.query_raw(query, params)?;
-
-    let output_buffer = vec![];
-    let mut workbook = NewWorkBook::new(Cursor::new(output_buffer));
-    let mut worksheet = workbook.get_worksheet(String::from("Sheet 1"));
-
-    let mut row_num = 1;
-    let headers = iter.next().ok().unwrap().unwrap();
-    let len = headers.len();
-
-    // TODO: Add if len == 0 check
-
-    // Write headers
-    let mut row_vec: Vec<&[u8]> = vec![&[]; len];
-
-    for col in 0..len {
-        let column = headers.columns().get(col).unwrap();
-        row_vec[col] = column.name().as_bytes();
-    }
-
-    worksheet.write_row(1, row_vec)?;
-
-
-    while let Some(row) = iter.next()? {
-        row_num += 1;
-        let mut row_vec: Vec<Box<[u8]>> = vec![Box::from([]); len];
-
-        for col in 0..len {
-            if let Ok(bytes) = row.try_get::<usize, ExcelBytesBorrowed>(col) {
-                row_vec[col] = Box::from(bytes.0);
-            } else if let Ok(bytes) = row.try_get::<usize, ExcelBytes>(col) {
-                let asdasd = bytes.0;
-                row_vec[col] = asdasd
-            }
-        }
-
-        let new_vec: Vec<&[u8]> = row_vec.iter().map(|x| x.as_ref()).collect();
-
-        worksheet.write_row(row_num, new_vec)?;
-    }
-    worksheet.close()?;
-
-    let final_buffer = workbook.finish()?;
-
-    Ok(final_buffer.into_inner())
 }

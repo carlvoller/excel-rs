@@ -1,0 +1,20 @@
+[package]
+name = "py-excel-rs"
+version = { workspace = true }
+edition = { workspace = true }
+authors = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+readme = "../README.md"
+description = "python ffi for excel-rs"
+
+[dependencies]
+excel-rs-xlsx = { workspace = true }
+excel-rs-csv = { workspace = true }
+excel-rs-postgres = { workspace = true }
+pyo3 = { version = "0.21", features = ["extension-module"] }
+numpy = "0.21"
+
+[lib]
+name = "excel_rs"
+crate-type = ["cdylib"]

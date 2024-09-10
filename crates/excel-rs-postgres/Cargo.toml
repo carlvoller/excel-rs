@@ -1,0 +1,22 @@
+[package]
+name = "excel-rs-postgres"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+repository.workspace = true
+readme = "../../README.md"
+description = "excel-rs postgres"
+
+[dependencies]
+anyhow = "1.0.86"
+chrono = "0.4.38"
+excel-rs-xlsx = { workspace = true }
+pyo3 = { version = "0.21", features = ["extension-module"] }
+postgres = "0.19.8"
+postgres-protocol = "0.6.7"
+rust_decimal = { version = "1.36.0", features = ["db-postgres"] }
+postgres_money = { version = "0.4.0", features = ["sql"] }
+tokio-postgres-rustls = "0.12.0"
+rustls = { version = "0.23.12", default-features = false, features = ["ring"] }

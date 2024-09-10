@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "py-excel-rs"
-version = "0.4.2"
+version = "0.5.0"
 description = "Some performant utility functions to convert common data structures to XLSX"
 dependencies = ["pandas", "numpy"]
 requires-python = ">=3.7"
@@ -20,5 +20,4 @@ classifiers = [
 ]
 
 [tool.maturin]
-python-source = "python"
 module-name = "py_excel_rs._excel_rs"

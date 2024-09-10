@@ -48,6 +48,22 @@ with open('report.xlsx', 'wb') as f:
     f.write(xlsx)
 ```
 
+### Build Postgres Query to Excel:
+```python
+from py_excel_rs import ExcelPostgresBuilder, OrderBy
+
+conn_string = "dbname=* user=* password=* host=*"
+builder = ExcelPostgresBuilder(conn_str=conn_string, table_name="my_schema.my_table")
+
+xlsx = builder.select_all()
+    .exclude(["Unwanted_Column1", "Unwanted_Column2"])
+    .orderBy("Usernames", OrderBy.ASCENDING)
+    .execute()
+
+with open('report.xlsx', 'wb') as f:
+    f.write(xlsx)
+```
+
 ## Rust
 TODO: Add rust documentation
 
@@ -60,7 +76,7 @@ Tests were conducted on an Macbook Pro M1 Max with 64GB of RAM
 
 ### Python 
 
-#### py-excel-rs (2.186s)
+#### py-excel-rs (2.89s)
 ```
 $ time python test-py-excel-rs.py
 python3 test-py-excel-rs.py  2.00s user 0.18s system 99% cpu 2.186 total

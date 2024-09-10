@@ -11,7 +11,8 @@ pub struct Sheet<'a, W: Write + Seek> {
     pub _name: String,
     // pub id: u16,
     // pub is_closed: bool,
-    col_num_to_letter: Vec<Vec<u8>>
+    col_num_to_letter: Vec<Vec<u8>>,
+    current_row_num: u32
 }
 
 
@@ -36,14 +37,16 @@ impl<'a, W: Write + Seek> Sheet<'a, W> {
             _name: name,
             // is_closed: false,
             col_num_to_letter: Vec::with_capacity(64),
+            current_row_num: 0
         }
     }
 
-    pub fn write_row(&mut self, row_num: u32, data: Vec<&[u8]>) -> Result<()> {
+    // TOOD: Use ShortVec over Vec for cell ID
+    pub fn write_row(&mut self, data: Vec<&[u8]>) -> Result<()> {
         let mut final_vec = Vec::with_capacity(512 * data.len());
 
         // TODO: Proper Error Handling
-        let (row_in_chars_arr, digits) = self.num_to_bytes(row_num);
+        let (row_in_chars_arr, digits) = self.num_to_bytes(self.current_row_num);
 
         final_vec.write(b"<row r=\"")?;
         final_vec.write(&row_in_chars_arr[9 - digits..])?;

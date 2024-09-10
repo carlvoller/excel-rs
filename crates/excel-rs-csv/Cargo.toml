@@ -1,0 +1,11 @@
+[package]
+name = "excel-rs-csv"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+csv = "1"
