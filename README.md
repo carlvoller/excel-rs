@@ -11,7 +11,7 @@ The Python utilities also gives you the quickest possible way to export a Pandas
 ## Python
 
 ### Installing
-```
+```bash
 $ pip install py-excel-rs 
 ```
 
@@ -91,7 +91,9 @@ $ ./target/release/cli-excel-rs csv --in my_csv.csv --out my_excel.xlsx
 TODO: Add rust documentation
 
 ## Benchmarks
-With a focus on squeezing out as much performance as possible, **py-excel-rs** is up to **65.5x** faster than `pandas` and **17.5x** faster than the next fastest `xlsx` writer on pip.
+With a focus on squeezing out as much performance as possible, **py-excel-rs** is up to **45.5x** faster than `pandas` and **12.5x** faster than the fastest `xlsx` writer on pip.
+
+**cli-excel-rs** also managed to out perform [csv2xlsx](https://github.com/mentax/csv2xlsx?tab=readme-ov-file), the most poopular csv to xlsx tool. It is up to **12x** faster given the same dataset.
 
 These tests used a sample dataset from [DataBlist](https://www.datablist.com/learn/csv/download-sample-csv-files) that contained 1,000,000 rows and 9 columns.
 
@@ -100,37 +102,37 @@ Tests were conducted on an Macbook Pro M1 Max with 64GB of RAM
 ### Python 
 
 #### py-excel-rs (2.89s)
-```
+```bash
 $ time python test-py-excel-rs.py
 python3 test-py-excel-rs.py  2.00s user 0.18s system 99% cpu 2.892 total
 ```
 
 #### openpyxl (97.38s)
-```
+```bash
 $ time python test-openpyxl.py
 python3 test-openpyxl.py  94.48s user 2.39s system 99% cpu 1:37.38 total
 ```
 
 #### pandas `to_excel()` (131.24s)
-```
+```bash
 $ time python test-pandas.py
 python3 test-pandas.py  127.99s user 2.75s system 99% cpu 2:11.24 total
 ```
 
 #### pandas `to_excel(engine="xlsxwriter")` (82.29s)
-```
+```bash
 $ time python test-pandas-xlsxwriter.py
 python3 test-pandas-xlsxwriter.py  76.86s user 1.95s system 95% cpu 1:22.29 total
 ```
 
 #### xlsxwriter (42.543s)
-```
+```bash
 $ time python test-xlsxwriter.py
 python3 test-xlsxwriter.py  41.58s user 0.81s system 99% cpu 42.543 total
 ```
 
 #### pyexcelerate (35.821s)
-```
+```bash
 $ time python test-pyexcelerate.py
 python3 test-pyexcelerate.py  35.27s user 0.33s system 99% cpu 35.821 total
 ```
