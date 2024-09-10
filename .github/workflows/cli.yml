@@ -40,17 +40,12 @@ jobs:
           #   target: ppc64le
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --package cli-excel-rs --all-features
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release --package cli-excel-rs --all-features
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: excel-rs-${{ matrix.platform.target }}
+          name: excel-rs-linux-${{ matrix.platform.target }}
           path: target/release/cli-excel-rs
 
   macos:
@@ -64,17 +59,12 @@ jobs:
             target: aarch64
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --package cli-excel-rs --all-features
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release --package cli-excel-rs --all-features
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: excel-rs-${{ matrix.platform.target }}
+          name: excel-rs-macos-${{ matrix.platform.target }}
           path: target/release/cli-excel-rs
 
   release:
