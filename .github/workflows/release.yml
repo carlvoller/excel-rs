@@ -48,7 +48,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release --out ../dist --find-interpreter
           sccache: 'true'
           before-script-linux: |
             if ! command -v yum &> /dev/null
@@ -88,7 +88,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release --out ../dist --find-interpreter
           sccache: 'true'
           manylinux: musllinux_1_2
           working-directory: py-excel-rs
@@ -143,7 +143,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release --out ../dist --find-interpreter
           sccache: 'true'
           working-directory: py-excel-rs
       - name: Upload wheels
@@ -160,7 +160,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           command: sdist
-          args: --out dist
+          args: --out ../dist
           working-directory: py-excel-rs
       - name: Upload sdist
         uses: actions/upload-artifact@v4
