@@ -1,10 +1,12 @@
 # excel-rs
 
-A set of Rust and Python utilities to efficiently convert CSVs to Excel XLSX files.
+An *extremely* fast set of Rust and Python utilities to efficiently convert CSVs to Excel XLSX files.
 
 This library is available as a CLI tool and Python PIP package.
 
-This library was created with the goal of being simple, lightweight, and *extremely* fast. As such, many features such as Excel formatting is not currently supported. This library gives you the quickest possible way to convert a `.csv` file to `.xlsx`.
+This library was created with the goal of being simple, lightweight, and *extremely* performant. As such, many features such as Excel formatting is not currently supported. This library gives you the quickest possible way to convert a `.csv` file to `.xlsx`.
+
+The Python utilities also gives you the quickest possible way to export a Pandas DataFrame, Numpy 2D array or Postgres database as a `.xlsx` file.
 
 ## Python
 
@@ -67,7 +69,7 @@ with open('report.xlsx', 'wb') as f:
 ```
 
 ## Command Line Tool
-To install, download the latest release of `cli-excel-rs` for your platform from Release [here](https://github.com/carlvoller/excel-rs/releases?q=cli-excel-rs&expanded=true).
+To install, download the latest release of `cli-excel-rs` for your platform from Github Releases [here](https://github.com/carlvoller/excel-rs/releases?q=cli-excel-rs&expanded=true).
 ```bash
 $ wget https://github.com/carlvoller/excel-rs/releases/download/cli-0.2.0/excel-rs-linux-aarch64.zip
 $ unzip excel-rs-linux-aarch64.zip
@@ -75,7 +77,14 @@ $ chmod +x ./cli-excel-rs
 ```
 Then simply run the binary:
 ```bash
-./cli-excel-rs csv --in my_csv.csv --out my_excel.xlsx
+$ ./cli-excel-rs csv --in my_csv.csv --out my_excel.xlsx
+```
+
+If you would like the build the binary yourself, you can do so using these commands:
+```bash
+$ git clone https://github.com/carlvoller/excel-rs
+$ cargo build --release
+$ ./target/release/cli-excel-rs csv --in my_csv.csv --out my_excel.xlsx
 ```
 
 ## Rust
@@ -93,7 +102,7 @@ Tests were conducted on an Macbook Pro M1 Max with 64GB of RAM
 #### py-excel-rs (2.89s)
 ```
 $ time python test-py-excel-rs.py
-python3 test-py-excel-rs.py  2.00s user 0.18s system 99% cpu 2.186 total
+python3 test-py-excel-rs.py  2.00s user 0.18s system 99% cpu 2.892 total
 ```
 
 #### openpyxl (97.38s)
@@ -126,6 +135,19 @@ $ time python test-pyexcelerate.py
 python3 test-pyexcelerate.py  35.27s user 0.33s system 99% cpu 35.821 total
 ```
 
+### Command Line Tools
+
+#### cli-excel-rs (2.756s)
+```bash
+$ time ./cli-excel-rs csv --in organizations-1000000.csv --out results.xlsx
+./cli-excel-rs csv --in organizations-1000000.csv --out 2.69s user 0.07s system 99% cpu 2.756 total
+```
+
+#### [csv2xlsx](https://github.com/mentax/csv2xlsx?tab=readme-ov-file)  (33.74s)
+```bash
+$ time ./csv2xlsx --output results.xlsx organizations-1000000.csv
+./csv2xlsx --output results.xlsx organizations-1000000.csv  57.63s user 1.62s system 175% cpu 33.740 total
+```
 
 ### Rust
 
