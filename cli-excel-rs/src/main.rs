@@ -12,7 +12,7 @@ fn cli() -> Command {
         .subcommand(
             Command::new("csv")
                 .about("Convert a csv file to xlsx")
-                .arg(arg!(--csv <FILE> "csv file to convert"))
+                .arg(arg!(--in <FILE> "csv file to convert"))
                 .arg(arg!(--out <FILE> "xlsx output file name")),
         )
 }
