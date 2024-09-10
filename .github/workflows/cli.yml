@@ -46,12 +46,12 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --all-features
+          args: --release --package cli-excel-rs --all-features
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: excel-rs-${{ matrix.platform.target }}
-          path: dist
+          path: target/release/cli-excel-rs
 
   macos:
     runs-on: ${{ matrix.platform.runner }}
@@ -70,12 +70,12 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --all-features
+          args: --release --package cli-excel-rs --all-features
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: excel-rs-${{ matrix.platform.target }}
-          path: dist
+          path: target/release/cli-excel-rs
 
   release:
     name: Release
@@ -116,7 +116,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.github-release.outputs.tag_name }}
-          FILES: excel-rs-*/*
+          FILES: excel-rs-*
 
       - name: Publish GitHub release
         run: gh release edit $TAG --draft=false
