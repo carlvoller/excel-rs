@@ -22,7 +22,7 @@ fn main() {
 
     match matches.subcommand() {
         Some(("csv", sub_matches)) => {
-            let input = sub_matches.get_one::<String>("csv").expect("required");
+            let input = sub_matches.get_one::<String>("in").expect("required");
             let out = sub_matches.get_one::<String>("out").expect("required");
 
             let mut f = File::open(input).expect("input csv file not found");

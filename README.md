@@ -2,6 +2,8 @@
 
 A set of Rust and Python utilities to efficiently convert CSVs to Excel XLSX files.
 
+This library is available as a CLI tool and Python PIP package.
+
 This library was created with the goal of being simple, lightweight, and *extremely* fast. As such, many features such as Excel formatting is not currently supported. This library gives you the quickest possible way to convert a `.csv` file to `.xlsx`.
 
 ## Python
@@ -62,6 +64,18 @@ xlsx = builder.select_all()
 
 with open('report.xlsx', 'wb') as f:
     f.write(xlsx)
+```
+
+## Command Line Tool
+To install, download the latest release of `cli-excel-rs` for your platform from Release [here](https://github.com/carlvoller/excel-rs/releases?q=cli-excel-rs&expanded=true).
+```bash
+$ wget https://github.com/carlvoller/excel-rs/releases/download/cli-0.2.0/excel-rs-linux-aarch64.zip
+$ unzip excel-rs-linux-aarch64.zip
+$ chmod +x ./cli-excel-rs
+```
+Then simply run the binary:
+```bash
+./cli-excel-rs csv --in my_csv.csv --out my_excel.xlsx
 ```
 
 ## Rust

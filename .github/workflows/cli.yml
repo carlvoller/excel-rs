@@ -42,7 +42,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo build --release --package cli-excel-rs --all-features
-      - run: zip excel-rs-linux-${{ matrix.platform.target }}.zip target/release/cli-excel-rs 
+      - run: cd target/release && zip ../../excel-rs-linux-${{ matrix.platform.target }}.zip cli-excel-rs 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -62,7 +62,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo build --release --package cli-excel-rs --all-features
-      - run: zip excel-rs-macos-${{ matrix.platform.target }}.zip target/release/cli-excel-rs 
+      - run: cd target/release && zip ../../excel-rs-macos-${{ matrix.platform.target }}.zip cli-excel-rs 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
