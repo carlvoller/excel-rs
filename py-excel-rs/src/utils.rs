@@ -16,6 +16,6 @@ pub fn chrono_to_xlsx_date(date: NaiveDateTime) -> f64 {
     );
     let delta = (date - start_date).num_nanoseconds().unwrap();
 
-    let true_delta: f64 = delta as f64 / NANOSECONDS_IN_A_DAY;
+    let true_delta: f64 = (delta as f64 + NANOSECONDS_IN_A_DAY + NANOSECONDS_IN_A_DAY) / NANOSECONDS_IN_A_DAY;
     return true_delta;
 }

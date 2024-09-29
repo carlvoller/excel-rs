@@ -3,7 +3,7 @@ members = ["cli-excel-rs", "crates/*", "py-excel-rs"]
 resolver = "2"
 
 [workspace.package]
-version = "0.5.2"
+version = "0.5.3"
 authors = ["Carl Voller"]
 edition = "2021"
 homepage = "https://github.com/carlvoller/excel-rs"
@@ -11,9 +11,9 @@ license = "MIT"
 repository = "https://github.com/carlvoller/excel-rs"
 
 [workspace.dependencies]
-excel-rs-xlsx = { version = "0.5.2", path = "crates/excel-rs-xlsx", default-features = false }
-excel-rs-csv = { version = "0.5.2", path = "crates/excel-rs-csv", default-features = false }
-excel-rs-postgres = { version = "0.5.2", path = "crates/excel-rs-postgres", default-features = false }
+excel-rs-xlsx = { version = "0.5.3", path = "crates/excel-rs-xlsx", default-features = false }
+excel-rs-csv = { version = "0.5.3", path = "crates/excel-rs-csv", default-features = false }
+excel-rs-postgres = { version = "0.5.3", path = "crates/excel-rs-postgres", default-features = false }
 
 [profile.release]
 opt-level = 3
