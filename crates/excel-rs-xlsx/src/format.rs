@@ -142,6 +142,7 @@ impl<W: Write + Seek> XlsxFormatter<W> {
         </cellStyleXfs>
         <cellXfs count="1">
             <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+            <xf numFmtId="14" borderId="0" fillId="0" fontId="0" xfId="0"/>
         </cellXfs>
         <cellStyles count="1">
             <cellStyle name="Normal" xfId="0" builtinId="0"/>

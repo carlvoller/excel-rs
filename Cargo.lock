@@ -471,14 +471,14 @@ checksum = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5"
 
 [[package]]
 name = "excel-rs-csv"
-version = "0.5.1"
+version = "0.5.2"
 dependencies = [
  "csv",
 ]
 
 [[package]]
 name = "excel-rs-postgres"
-version = "0.5.1"
+version = "0.5.2"
 dependencies = [
  "anyhow",
  "chrono",
@@ -494,7 +494,7 @@ dependencies = [
 
 [[package]]
 name = "excel-rs-xlsx"
-version = "0.5.1"
+version = "0.5.2"
 dependencies = [
  "anyhow",
  "zip",
@@ -1079,8 +1079,9 @@ dependencies = [
 
 [[package]]
 name = "py-excel-rs"
-version = "0.5.1"
+version = "0.5.2"
 dependencies = [
+ "chrono",
  "excel-rs-csv",
  "excel-rs-postgres",
  "excel-rs-xlsx",
@@ -1095,6 +1096,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a5e00b96a521718e08e03b1a622f01c8a8deb50719335de3f60b3b3950f069d8"
 dependencies = [
  "cfg-if",
+ "chrono",
  "indoc",
  "libc",
  "memoffset",

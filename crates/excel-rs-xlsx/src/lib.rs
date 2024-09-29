@@ -2,6 +2,7 @@
 mod format;
 pub mod workbook;
 pub mod sheet;
+pub mod typed_sheet;
 
 pub use workbook::WorkBook;
 
