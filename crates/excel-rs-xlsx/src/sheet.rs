@@ -12,9 +12,11 @@ pub struct Sheet<'a, W: Write + Seek> {
     // pub id: u16,
     // pub is_closed: bool,
     col_num_to_letter: Vec<Vec<u8>>,
-    current_row_num: u32
+    current_row_num: u32,
+    has_auto_filter: bool,
+    sheet_data_started: bool,  // Add this to track if we've started sheetData
+    freeze_top_row: bool,      // Add this to track if we should freeze the top row
 }
-
 
 impl<'a, W: Write + Seek> Sheet<'a, W> {
     pub fn new(name: String, id: u16, writer: &'a mut ZipWriter<W>) -> Self {
@@ -27,22 +29,59 @@ impl<'a, W: Write + Seek> Sheet<'a, W> {
             .start_file(format!("xl/worksheets/sheet{}.xml", id), options)
             .ok();
 
-        // Writes Sheet Header
-        writer.write(b"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">\n<sheetData>\n").ok();
-
+        writer.write(b"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n\
+            <worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" \
+            xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">\n").ok();
 
         Sheet {
             sheet_buf: writer,
-            // id,
             _name: name,
-            // is_closed: false,
             col_num_to_letter: Vec::with_capacity(64),
-            current_row_num: 0
+            current_row_num: 0,
+            has_auto_filter: false,
+            sheet_data_started: false,
+            freeze_top_row: false,
         }
     }
 
-    // TOOD: Use ShortVec over Vec for cell ID
+    // Public method to set the freeze flag
+    pub fn freeze_top_row(&mut self) {
+        self.freeze_top_row = true;
+    }
+
+    // Private method to write the sheetViews XML
+    fn write_sheet_views(&mut self) -> Result<()> {
+        if self.sheet_data_started {
+            return Ok(());  // Can't write sheetViews after sheetData has started
+        }
+        
+        self.sheet_buf.write(b"<sheetViews>\n\
+            <sheetView tabSelected=\"1\" workbookViewId=\"0\" zoomScale=\"100\">\n\
+            <pane ySplit=\"1\" xSplit=\"0\" topLeftCell=\"A2\" activePane=\"bottomLeft\" state=\"frozen\" />\n\
+            <selection pane=\"topLeft\" />\n\
+            <selection pane=\"bottomLeft\" activeCell=\"A2\" sqref=\"A2\" />\n\
+            </sheetView>\n\
+            </sheetViews>\n")?;
+
+        self.sheet_data_started = true;
+
+        Ok(())
+    }
+
+    // New public method to initialize the sheet
+    pub fn init_sheet(&mut self) -> Result<()> {
+        // Write sheetViews if requested
+        if self.freeze_top_row {
+            self.write_sheet_views()?;
+        }
+        // Write sheetData start tag
+        self.sheet_buf.write(b"<sheetData>\n")?;
+        Ok(())
+    }
+
     pub fn write_row(&mut self, data: Vec<&[u8]>) -> Result<()> {
+        self.current_row_num += 1;
+
         let mut final_vec = Vec::with_capacity(512 * data.len());
 
         // TODO: Proper Error Handling
@@ -115,8 +154,26 @@ impl<'a, W: Write + Seek> Sheet<'a, W> {
     }
 
     pub fn close(&mut self) -> Result<()> {
-        self.sheet_buf.write(b"\n</sheetData>\n</worksheet>\n")?;
+        // Close sheetData
+        self.sheet_buf.write(b"</sheetData>\n")?;
+
+        // Write autoFilter if requested
+        if self.has_auto_filter {
+            let num_columns = self.col_num_to_letter.len();
+            if num_columns > 0 {
+                let last_col_letter = self.col_to_letter(num_columns - 1);
+                let auto_filter_range = format!("A1:{}1", String::from_utf8_lossy(last_col_letter));
+                self.sheet_buf.write(format!("<autoFilter ref=\"{}\"/>\n", auto_filter_range).as_bytes())?;
+            }
+        }
+
+        // Close worksheet
+        self.sheet_buf.write(b"</worksheet>")?;
         Ok(())
+    }
+
+    pub fn add_auto_filter(&mut self) {
+        self.has_auto_filter = true;
     }
 
     fn num_to_bytes(&self, n: u32) -> ([u8; 9], usize) {
@@ -125,6 +182,12 @@ impl<'a, W: Write + Seek> Sheet<'a, W> {
         let mut row = n;
         let mut char_pos = 8;
         let mut digits = 0;
+
+        if row == 0 {
+            row_in_chars_arr[8] = b'0';
+            return (row_in_chars_arr, 1);
+        }
+
         while row > 0 {
             row_in_chars_arr[char_pos] = b'0' + (row % 10) as u8;
             row = row / 10;

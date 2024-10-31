@@ -5,14 +5,20 @@ use std::{
 
 use anyhow::Result;
 use zip::{write::SimpleFileOptions, ZipWriter};
+use chrono::NaiveDateTime;
+
+pub const TYPE_NUMBER: &'static str = "n";
+pub const TYPE_DATE: &'static str = "d";
+pub const TYPE_STRING: &'static str = "str";
 
 pub struct TypedSheet<'a, W: Write + Seek> {
     pub sheet_buf: &'a mut ZipWriter<W>,
     pub _name: String,
-    // pub id: u16,
-    // pub is_closed: bool,
     col_num_to_letter: Vec<Vec<u8>>,
     current_row_num: u32,
+    has_auto_filter: bool,
+    sheet_data_started: bool,
+    freeze_top_row: bool,
 }
 
 impl<'a, W: Write + Seek> TypedSheet<'a, W> {
@@ -26,26 +32,59 @@ impl<'a, W: Write + Seek> TypedSheet<'a, W> {
             .start_file(format!("xl/worksheets/sheet{}.xml", id), options)
             .ok();
 
-        // Writes Sheet Header
-        writer.write(b"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">\n<sheetData>\n").ok();
+        writer.write(b"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n\
+            <worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" \
+            xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">\n").ok();
 
         TypedSheet {
             sheet_buf: writer,
-            // id,
             _name: name,
-            // is_closed: false,
             col_num_to_letter: Vec::with_capacity(64),
             current_row_num: 0,
+            has_auto_filter: false,
+            sheet_data_started: false,
+            freeze_top_row: false,
         }
     }
 
-    // TOOD: Use ShortVec over Vec for cell ID
-    pub fn write_row(&mut self, data: Vec<&[u8]>, types: &Vec<&str>) -> Result<()> {
+    pub fn freeze_top_row(&mut self) {
+        self.freeze_top_row = true;
+    }
+
+    pub fn add_auto_filter(&mut self) {
+        self.has_auto_filter = true;
+    }
+
+    fn write_sheet_views(&mut self) -> Result<()> {
+        if self.sheet_data_started {
+            return Ok(());
+        }
+        
+        self.sheet_buf.write(b"<sheetViews>\n\
+            <sheetView tabSelected=\"1\" workbookViewId=\"0\" zoomScale=\"100\">\n\
+            <pane ySplit=\"1\" xSplit=\"0\" topLeftCell=\"A2\" activePane=\"bottomLeft\" state=\"frozen\" />\n\
+            <selection pane=\"topLeft\" />\n\
+            <selection pane=\"bottomLeft\" activeCell=\"A2\" sqref=\"A2\" />\n\
+            </sheetView>\n\
+            </sheetViews>\n")?;
+
+        Ok(())
+    }
+
+    pub fn init_sheet(&mut self) -> Result<()> {
+        if self.freeze_top_row {
+            self.write_sheet_views()?;
+        }
+        self.sheet_buf.write(b"<sheetData>\n")?;
+        self.sheet_data_started = true;
+        Ok(())
+    }
+
+    pub fn write_row(&mut self, data: Vec<&[u8]>, types: &Vec<&'static str>) -> Result<()> {
         self.current_row_num += 1;
 
         let mut final_vec = Vec::with_capacity(512 * data.len());
 
-        // TODO: Proper Error Handling
         let (row_in_chars_arr, digits) = self.num_to_bytes(self.current_row_num);
 
         final_vec.write(b"<row r=\"")?;
@@ -108,6 +147,27 @@ impl<'a, W: Write + Seek> TypedSheet<'a, W> {
         Ok(())
     }
 
+    pub fn infer_row_types(&self, data: &[&[u8]]) -> Vec<&'static str> {
+        data.iter()
+            .map(|field| {
+                let s = String::from_utf8_lossy(field);
+                if s.parse::<i64>().is_ok() {
+                    TYPE_NUMBER
+                } else if s.parse::<f64>().is_ok() {
+                    TYPE_NUMBER
+                } else if let Ok(_) = NaiveDateTime::parse_from_str(&s, "%Y-%m-%d") {
+                    TYPE_DATE
+                } else if let Ok(_) = NaiveDateTime::parse_from_str(&s, "%m/%d/%Y") {
+                    TYPE_DATE
+                } else if let Ok(_) = NaiveDateTime::parse_from_str(&s, "%d/%m/%Y") {
+                    TYPE_DATE
+                } else {
+                    TYPE_STRING
+                }
+            })
+            .collect()
+    }
+
     fn escape_in_place(&self, bytes: &[u8]) -> (VecDeque<&[u8]>, VecDeque<usize>) {
         let mut special_chars: VecDeque<&[u8]> = VecDeque::new();
         let mut special_char_pos: VecDeque<usize> = VecDeque::new();
@@ -142,12 +202,22 @@ impl<'a, W: Write + Seek> TypedSheet<'a, W> {
     }
 
     pub fn close(&mut self) -> Result<()> {
-        self.sheet_buf.write(b"\n</sheetData>\n</worksheet>\n")?;
+        self.sheet_buf.write(b"</sheetData>\n")?;
+
+        if self.has_auto_filter {
+            let num_columns = self.col_num_to_letter.len();
+            if num_columns > 0 {
+                let last_col_letter = self.col_to_letter(num_columns - 1);
+                let auto_filter_range = format!("A1:{}1", String::from_utf8_lossy(last_col_letter));
+                self.sheet_buf.write(format!("<autoFilter ref=\"{}\"/>\n", auto_filter_range).as_bytes())?;
+            }
+        }
+
+        self.sheet_buf.write(b"</worksheet>")?;
         Ok(())
     }
 
     fn num_to_bytes(&self, n: u32) -> ([u8; 9], usize) {
-        // Convert from number to string manually
         let mut row_in_chars_arr: [u8; 9] = [0; 9];
         let mut row = n;
         let mut char_pos = 8;

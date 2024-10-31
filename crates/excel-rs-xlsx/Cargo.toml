@@ -14,3 +14,4 @@ zip = { version = "2.2.0", default-features = false, features = [
     "deflate-zlib-ng",
 ] }
 anyhow = "1.0.86"
+chrono = { workspace = true }
