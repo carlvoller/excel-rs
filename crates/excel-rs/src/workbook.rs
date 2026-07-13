@@ -1,9 +1,6 @@
 use super::format::XlsxFormatter;
 use crate::error::{ExcelError, Result};
-use std::{
-    collections::HashSet,
-    io::{Seek, Write},
-};
+use std::io::{Seek, Write};
 use zip::ZipWriter;
 
 use super::sheet::Sheet;
@@ -11,7 +8,7 @@ use super::sheet::Sheet;
 /// A WorkBook represents one excel file.
 pub struct WorkBook<W: Write + Seek> {
     formatter: XlsxFormatter<W>,
-    sheet_names: HashSet<String>,
+    sheet_names: Vec<String>,
 }
 
 impl<W: Write + Seek> WorkBook<W> {
@@ -21,7 +18,7 @@ impl<W: Write + Seek> WorkBook<W> {
 
         WorkBook {
             formatter: XlsxFormatter::new(zip_writer),
-            sheet_names: HashSet::new(),
+            sheet_names: Vec::new(),
         }
     }
 
@@ -36,13 +33,12 @@ impl<W: Write + Seek> WorkBook<W> {
         }
 
         let id = self.sheet_names.len() as u16 + 1;
-        self.sheet_names.insert(name.clone());
+        self.sheet_names.push(name.clone());
         Sheet::new(name, id, &mut self.formatter.zip_writer)
     }
 
     /// Finish writing to the excel file. This closes the file and wraps up any remaining operations.
     pub fn finish(self) -> Result<W> {
-        self.formatter
-            .finish(self.sheet_names.into_iter().collect::<Vec<String>>())
+        self.formatter.finish(self.sheet_names)
     }
 }
